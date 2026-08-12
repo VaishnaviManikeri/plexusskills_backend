@@ -7,6 +7,7 @@ import galleryRoutes from './routes/galleryRoutes.js';
 import noticeRoutes from './routes/noticeRoutes.js';
 import careerRoutes from './routes/careerRoutes.js';
 import blogRoutes from './routes/blogRoutes.js';
+import enquiryRoutes from './routes/enquiryRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
@@ -50,6 +51,7 @@ app.use('/api/gallery', galleryRoutes);
 app.use('/api/notices', noticeRoutes);
 app.use('/api/careers', careerRoutes);
 app.use('/api/blogs', blogRoutes);
+app.use('/api/enquiries', enquiryRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
