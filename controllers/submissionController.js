@@ -14,6 +14,11 @@ const mailSettings = () => {
       port: Number(SMTP_PORT),
       secure: String(process.env.SMTP_SECURE).toLowerCase() === 'true' || Number(SMTP_PORT) === 465,
       auth: { user: SMTP_USER, pass: SMTP_PASS },
+      pool: true,
+      maxConnections: 2,
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 20000,
     }),
     recipient: process.env.ENQUIRY_TO_EMAIL || 'contact@plexusskills.in',
     from: process.env.SMTP_FROM || `Plexus Skills <${SMTP_USER}>`,
@@ -26,18 +31,19 @@ const submit = async (res, { title, subject, userName, userEmail, fields, confir
   const rows = fields.map(([label, value]) => `<tr><td style="padding:9px 12px;border:1px solid #ddd;font-weight:700">${escapeHtml(label)}</td><td style="padding:9px 12px;border:1px solid #ddd">${escapeHtml(value || 'Not provided')}</td></tr>`).join('');
   const text = `${title}\n\n${fields.map(([label, value]) => `${label}: ${value || 'Not provided'}`).join('\n')}`;
   try {
-    await settings.transporter.sendMail({
+    const adminMessage = settings.transporter.sendMail({
       from: settings.from, to: settings.recipient, replyTo: userEmail, subject,
       html: `<div style="font-family:Arial,sans-serif;color:#031234"><h2 style="color:#761e6b">${escapeHtml(title)}</h2><table style="border-collapse:collapse;width:100%;max-width:700px">${rows}</table></div>`,
       text,
       attachments: attachment ? [{ filename: attachment.originalname, content: attachment.buffer, contentType: attachment.mimetype }] : undefined,
     });
-    await settings.transporter.sendMail({
+    const autoReply = settings.transporter.sendMail({
       from: settings.from, to: userEmail, replyTo: settings.recipient,
       subject: confirmation.subject,
       html: `<div style="font-family:Arial,sans-serif;max-width:620px;margin:auto;color:#031234;line-height:1.65"><h2 style="color:#761e6b">Thank you, ${escapeHtml(userName)}!</h2><p>${confirmation.html}</p><p>Regards,<br><strong>Plexus Skills Team</strong></p></div>`,
       text: `Thank you, ${userName}! ${confirmation.text}\n\nRegards,\nPlexus Skills Team`,
     });
+    await Promise.all([adminMessage, autoReply]);
     return res.status(201).json({ message: 'Your form has been submitted successfully.' });
   } catch (error) {
     console.error(`${title} email error:`, error);
