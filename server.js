@@ -10,6 +10,7 @@ import blogRoutes from './routes/blogRoutes.js';
 import enquiryRoutes from './routes/enquiryRoutes.js';
 import webinarRoutes from './routes/webinarRoutes.js';
 import enrollmentRoutes from './routes/enrollmentRoutes.js';
+import submissionRoutes from './routes/submissionRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
@@ -63,6 +64,7 @@ app.use('/api/blogs', blogRoutes);
 app.use('/api/enquiries', enquiryRoutes);
 app.use('/api/webinar-registrations', webinarRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
+app.use('/api/submissions', submissionRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
