@@ -74,7 +74,13 @@ app.get('/api/health', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err.stack);
-  res.status(500).json({ error: err.message || 'Something went wrong!' });
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(413).json({ message: 'Résumé must be 5 MB or smaller.' });
+  }
+  if (err.name === 'MulterError' || err.message?.includes('PDF, DOC, or DOCX')) {
+    return res.status(400).json({ message: err.message });
+  }
+  return res.status(500).json({ message: err.message || 'Something went wrong!' });
 });
 
 // MongoDB Connection
