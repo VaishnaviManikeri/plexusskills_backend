@@ -24,8 +24,6 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 const PORT = process.env.PORT || 5033;
-const requiredMailVariables = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'];
-const missingMailVariables = () => requiredMailVariables.filter((name) => !process.env[name]?.trim());
 
 // CORS Configuration
 const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:5173,http://127.0.0.1:5173,https://plexusskills.netlify.app,https://plexusskills.in,https://www.plexusskills.in')
@@ -67,12 +65,7 @@ app.use('/api/submissions', submissionRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  const missing = missingMailVariables();
-  res.json({
-    status: 'OK',
-    message: 'Server is running',
-    email: { configured: missing.length === 0, missingVariables: missing },
-  });
+  res.json({ status: 'OK', message: 'Server is running' });
 });
 
 // Error handling middleware
@@ -124,10 +117,4 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📍 http://localhost:${PORT}`);
   console.log(`📁 Uploads directory: ${uploadsDir}`);
-  const missing = missingMailVariables();
-  if (missing.length) {
-    console.error(`Email is disabled. Missing environment variables: ${missing.join(', ')}`);
-  } else {
-    console.log(`Email is configured for ${process.env.ENQUIRY_TO_EMAIL || 'contact@plexusskills.in'}`);
-  }
 });
