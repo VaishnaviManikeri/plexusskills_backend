@@ -28,7 +28,8 @@ const HOST = process.env.HOST || '0.0.0.0';
 
 // CORS Configuration. Additional deployed frontend URLs can be supplied as a
 // comma-separated CORS_ORIGINS environment variable on Render.
-const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:5173,http://127.0.0.1:5173,https://plexusskills.netlify.app,https://plexusskills.in,https://www.plexusskills.in')
+const defaultOrigins = 'http://localhost:3000,http://localhost:5173,http://127.0.0.1:5173,https://plexusskills.netlify.app,https://plexusskills.in,https://www.plexusskills.in';
+const allowedOrigins = `${defaultOrigins},${process.env.CORS_ORIGINS || ''}`
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
