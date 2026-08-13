@@ -10,7 +10,6 @@ import blogRoutes from './routes/blogRoutes.js';
 import enquiryRoutes from './routes/enquiryRoutes.js';
 import webinarRoutes from './routes/webinarRoutes.js';
 import enrollmentRoutes from './routes/enrollmentRoutes.js';
-import submissionRoutes from './routes/submissionRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
@@ -26,10 +25,8 @@ const app = express();
 const PORT = process.env.PORT || 5033;
 
 // CORS Configuration
-const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:5173,http://127.0.0.1:5173,https://plexusskills.netlify.app,https://plexusskills.in,https://www.plexusskills.in')
-  .split(',').map((origin) => origin.trim()).filter(Boolean);
 app.use(cors({
-  origin: (origin, callback) => callback(null, !origin || allowedOrigins.includes(origin)),
+  origin: ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:5173','https://plexusskills.netlify.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   credentials: true,
@@ -61,7 +58,6 @@ app.use('/api/blogs', blogRoutes);
 app.use('/api/enquiries', enquiryRoutes);
 app.use('/api/webinar-registrations', webinarRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
-app.use('/api/submissions', submissionRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
