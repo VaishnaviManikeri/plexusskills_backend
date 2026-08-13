@@ -24,9 +24,14 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 const app = express();
 const PORT = process.env.PORT || 5033;
 
-// CORS Configuration
+// CORS Configuration. Additional deployed frontend URLs can be supplied as a
+// comma-separated CORS_ORIGINS environment variable on Render.
+const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:5173,http://127.0.0.1:5173,https://plexusskills.netlify.app,https://plexusskills.in,https://www.plexusskills.in')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:5173','https://plexusskills.netlify.app'],
+  origin: (origin, callback) => callback(null, !origin || allowedOrigins.includes(origin)),
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   credentials: true,
