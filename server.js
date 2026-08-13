@@ -24,6 +24,7 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 const PORT = process.env.PORT || 5033;
+const HOST = process.env.HOST || '0.0.0.0';
 
 // CORS Configuration. Additional deployed frontend URLs can be supplied as a
 // comma-separated CORS_ORIGINS environment variable on Render.
@@ -66,10 +67,19 @@ app.use('/api/webinar-registrations', webinarRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/submissions', submissionRoutes);
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Server is running' });
+// Public status routes for VPS/load-balancer checks. These intentionally expose
+// no credentials or environment-variable values.
+const serverStatus = () => ({
+  status: 'OK',
+  message: 'Plexus Skills backend is running',
+  environment: process.env.NODE_ENV || 'development',
+  database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+  uptimeSeconds: Math.floor(process.uptime()),
+  timestamp: new Date().toISOString(),
 });
+
+app.get('/', (req, res) => res.status(200).json(serverStatus()));
+app.get('/api/health', (req, res) => res.status(200).json(serverStatus()));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -122,8 +132,11 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📍 http://localhost:${PORT}`);
+app.listen(PORT, HOST, () => {
+  console.log(`🚀 Server running on ${HOST}:${PORT}`);
+  console.log(`📍 Local health: http://localhost:${PORT}/api/health`);
+  if (process.env.PUBLIC_BACKEND_URL) {
+    console.log(`🌐 Public health: ${process.env.PUBLIC_BACKEND_URL.replace(/\/$/, '')}/api/health`);
+  }
   console.log(`📁 Uploads directory: ${uploadsDir}`);
 });
